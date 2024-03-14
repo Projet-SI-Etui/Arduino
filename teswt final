@@ -1,0 +1,137 @@
+// Définitions pour le moteur
+int PWM = 4;
+int in1 = 3;
+int in2 = 2;
+
+// Définition des broches pour les LED
+int ledVerte = 9;
+int ledRouge = 10;
+//int ledOrange = 11;
+
+// Définition des boutons
+int boutonStartStop = 5;  // broche pour le bouton avancer
+int boutonReculeStop = 6;   // broche pour le bouton stop
+
+// int boutonArriere = 7; // broche pour le bouton reculer
+
+// Définition du capteur d'intensité (à ajuster avec Ayoub)
+int CapteurIntensite = A0;
+
+bool buttonState = false;  // definfition etat bouton
+bool buttonState2 = false;  // definfition etat bouton
+
+void setup() {
+  // Initialiser le moniteur moteur
+  Serial.begin(9600);
+
+  // Configurer le moteur en sortie
+  pinMode(PWM, OUTPUT);
+  pinMode(in1, OUTPUT);
+  pinMode(in2, OUTPUT);
+
+  // Mettre les boutons en entrée
+  pinMode(boutonStartStop, INPUT);
+  pinMode(boutonReculeStop, INPUT);
+  // pinMode(boutonArriere, INPUT);
+
+  // Configurer les LED en sortie
+  pinMode(ledVerte, OUTPUT);
+  pinMode(ledRouge, OUTPUT);
+  //pinMode(ledOrange, OUTPUT);
+
+  // Configurer le capteur d'intensité en entrée
+  pinMode(CapteurIntensite, INPUT);
+
+  analogWrite(PWM, 0);  // Mettre le PWM à 0V au début
+}
+
+void loop() {
+  // Lecture du bouton avant
+   if (digitalRead(boutonStartStop) == HIGH && !buttonState) {
+    // Avancer
+    analogWrite(PWM, 255);
+    digitalWrite(in1, HIGH);
+    digitalWrite(in2, LOW); 
+
+    // Allumer la LED verte
+    digitalWrite(ledVerte, LOW);
+    digitalWrite(ledRouge, HIGH);
+    // digitalWrite(ledOrange, LOW);
+
+    // Mesurer le courant
+    int capteur = analogRead(CapteurIntensite);
+
+    // Si le courant dépasse un certain seuil, arrêter le moteur
+    if (capteur > 10) {
+      analogWrite(PWM, 0);
+      digitalWrite(in1, LOW);
+      digitalWrite(in2, LOW);
+      digitalWrite(ledVerte, LOW);
+      digitalWrite(ledRouge, HIGH);
+      // digitalWrite(ledOrange, LOW);
+    }
+  }
+
+  // Lecture du bouton stop
+  else if (digitalRead(boutonStartStop) == HIGH && buttonState) {
+    // Arrêter
+    analogWrite(PWM, 0);
+    digitalWrite(in1, LOW);
+    digitalWrite(in2, LOW);
+
+    // Allumer la LED rouge
+    digitalWrite(ledVerte, HIGH);
+    digitalWrite(ledRouge, LOW);
+    // digitalWrite(ledOrange, LOW);
+
+    buttonState = !buttonState; 
+    delay(500);
+  }
+
+    // Lecture du bouton arrière
+    else  if (digitalRead(boutonReculeStop) == HIGH && !buttonState2) {
+    // Reculer jusqu'à ce que le capteur d'intensité atteigne un seuil
+    // while (true) {
+      analogWrite(PWM, 255);
+      digitalWrite(in1, LOW);
+      digitalWrite(in2, HIGH);
+
+      // Allumer la LED orange
+      digitalWrite(ledVerte, LOW);
+      digitalWrite(ledRouge, HIGH);
+      // digitalWrite(ledOrange, LOW);
+
+      buttonState = !buttonState2; 
+      delay(500);
+
+      // Mesurer le courant
+      int capteur = analogRead(CapteurIntensite);
+
+      // Si le courant dépasse un certain seuil, arrêter le moteur
+      if (capteur > 10) {
+        analogWrite(PWM, 0);
+        digitalWrite(in1, LOW);
+        digitalWrite(in2, LOW);
+        // digitalWrite(ledOrange, LOW);
+        digitalWrite(ledVerte, HIGH);
+        digitalWrite(ledRouge, LOW);
+        // break;
+      }
+
+     else if (digitalRead(boutonReculeStop) == HIGH && buttonState2) {
+         // Arrêter
+     analogWrite(PWM, 0);
+     digitalWrite(in1, LOW);
+     digitalWrite(in2, LOW);
+
+     // Allumer la LED rouge
+     digitalWrite(ledVerte, HIGH);
+     digitalWrite(ledRouge, LOW);
+     // digitalWrite(ledOrange, LOW);
+
+     buttonState2 = !buttonState2; 
+     delay(500);
+     }
+  
+    }
+  }
